@@ -5,12 +5,15 @@ import Image from 'next/image';
 import { cn } from '@/lib/utils';
 
 interface ProductGalleryProps {
-  images: string[];
+  images?: string[] | null;
   title: string;
 }
 
 export default function ProductGallery({ images, title }: ProductGalleryProps) {
-  const validImages = images.length > 0 ? images : ['/placeholder.svg'];
+  const safeImages = Array.isArray(images)
+    ? images.filter((img): img is string => typeof img === 'string' && img.trim().length > 0)
+    : [];
+  const validImages = safeImages.length > 0 ? safeImages : ['/placeholder.svg'];
   const [activeIndex, setActiveIndex] = useState(0);
   const safeIndex = activeIndex < validImages.length ? activeIndex : 0;
   const activeImage = validImages[safeIndex];

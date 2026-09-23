@@ -20,7 +20,7 @@ export default function ProductCard({ product, onDelete }: ProductCardProps) {
         <Link href={`/products/${product.id}`} className="shrink-0">
           <div className="relative h-16 w-16 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 shadow-sm transition-transform duration-200 hover:scale-[1.03]">
             <Image
-              src={product.thumbnail}
+              src={product.thumbnail || '/placeholder.svg'}
               alt={product.title}
               fill
               sizes="64px"

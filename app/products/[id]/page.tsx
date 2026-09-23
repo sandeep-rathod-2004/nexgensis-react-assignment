@@ -259,12 +259,12 @@ export default function ProductDetailsPage() {
             <div className="rounded-[1.5rem] border border-slate-200 bg-white/95 p-6 shadow-soft">
               <h2 className="mb-4 text-sm font-semibold text-slate-900">Product Information</h2>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <InfoRow icon={Tag} label="SKU" value={product.sku} />
+                <InfoRow icon={Tag} label="SKU" value={product.sku || '—'} />
                 <InfoRow icon={Barcode} label="Barcode" value={product.meta?.barcode ?? '—'} />
                 <InfoRow icon={DollarSign} label="Price" value={formatPrice(product.price)} />
                 <InfoRow icon={Star} label="Rating" value={`${product.rating.toFixed(1)} / 5`} />
                 <InfoRow icon={Boxes} label="Stock" value={`${product.stock} units`} />
-                <InfoRow icon={Package} label="Min. Order" value={`${product.minimumOrderQuantity} units`} />
+                <InfoRow icon={Package} label="Min. Order" value={`${product.minimumOrderQuantity ?? 1} units`} />
                 <InfoRow icon={Shield} label="Warranty" value={product.warrantyInformation || '—'} />
                 <InfoRow icon={Truck} label="Shipping" value={product.shippingInformation || '—'} />
                 <InfoRow icon={RotateCcw} label="Return Policy" value={product.returnPolicy || '—'} />

@@ -22,18 +22,18 @@ export interface Product {
   stock: number;
   tags: string[];
   brand?: string;
-  sku: string;
-  weight: number;
-  dimensions: ProductDimensions;
-  warrantyInformation: string;
-  shippingInformation: string;
-  availabilityStatus: string;
-  reviews: Review[];
-  returnPolicy: string;
-  minimumOrderQuantity: number;
-  meta: ProductMeta;
-  thumbnail: string;
-  images: string[];
+  sku?: string;
+  weight?: number;
+  dimensions?: ProductDimensions;
+  warrantyInformation?: string;
+  shippingInformation?: string;
+  availabilityStatus?: string;
+  reviews?: Review[];
+  returnPolicy?: string;
+  minimumOrderQuantity?: number;
+  meta?: ProductMeta;
+  thumbnail?: string | null;
+  images?: string[] | null;
   isLocal?: boolean;
 }
 

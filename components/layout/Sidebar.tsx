@@ -2,8 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Package2, LayoutGrid, PlusCircle, LogOut } from 'lucide-react';
-import { useAuth } from '@/context/AuthContext';
+import { Package2, LayoutGrid, PlusCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
@@ -13,7 +12,6 @@ const navItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const { logout, user } = useAuth();
 
   return (
     <aside className="hidden lg:flex h-screen w-72 shrink-0 flex-col border-r border-slate-200 bg-white/80 backdrop-blur-sm sticky top-0 shadow-[0_0_0_1px_rgba(255,255,255,0.4)]">
@@ -58,31 +56,6 @@ export default function Sidebar() {
         })}
       </nav>
 
-      <div className="border-t border-slate-200 p-3">
-        <div className="mb-2 flex items-center gap-3 rounded-2xl bg-slate-50 px-3 py-2.5">
-          <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-slate-200 text-sm font-semibold text-slate-700 shadow-inner">
-            {user?.image ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={user.image} alt="" className="h-full w-full object-cover" />
-            ) : (
-              <span>{user?.firstName?.[0] ?? 'U'}</span>
-            )}
-          </div>
-          <div className="flex min-w-0 flex-col">
-            <span className="truncate text-sm font-medium text-slate-900">
-              {user?.firstName} {user?.lastName}
-            </span>
-            <span className="truncate text-[11px] text-slate-500">{user?.email}</span>
-          </div>
-        </div>
-        <button
-          onClick={logout}
-          className="flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-red-50 hover:text-red-600"
-        >
-          <LogOut className="h-4 w-4 shrink-0" />
-          Logout
-        </button>
-      </div>
     </aside>
   );
 }

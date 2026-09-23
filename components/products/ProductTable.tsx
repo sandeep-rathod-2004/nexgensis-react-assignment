@@ -36,7 +36,7 @@ export default function ProductTable({ products, onDelete }: ProductTableProps) 
                 <Link href={`/products/${product.id}`} className="block">
                   <div className="relative h-12 w-12 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 shadow-sm transition-transform duration-200 group-hover:scale-[1.03]">
                     <Image
-                      src={product.thumbnail}
+                      src={product.thumbnail || '/placeholder.svg'}
                       alt={product.title}
                       fill
                       sizes="48px"

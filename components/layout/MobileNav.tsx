@@ -3,8 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Package2, LayoutGrid, PlusCircle, LogOut, Menu, X } from 'lucide-react';
-import { useAuth } from '@/context/AuthContext';
+import { Package2, LayoutGrid, PlusCircle, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -15,7 +14,6 @@ const navItems = [
 
 export default function MobileNav() {
   const pathname = usePathname();
-  const { logout, user } = useAuth();
   const [open, setOpen] = useState(false);
 
   function close() {
@@ -95,34 +93,6 @@ export default function MobileNav() {
               })}
             </nav>
 
-            <div className="border-t border-slate-200 p-3">
-              <div className="mb-2 flex items-center gap-3 rounded-2xl bg-slate-50 px-3 py-2.5">
-                <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-slate-200 text-xs font-semibold text-slate-700">
-                  {user?.image ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={user.image} alt="" className="h-full w-full object-cover" />
-                  ) : (
-                    <span>{user?.firstName?.[0] ?? 'U'}</span>
-                  )}
-                </div>
-                <div className="flex min-w-0 flex-col">
-                  <span className="truncate text-sm font-medium text-slate-900">
-                    {user?.firstName} {user?.lastName}
-                  </span>
-                  <span className="truncate text-[11px] text-slate-500">{user?.email}</span>
-                </div>
-              </div>
-              <button
-                onClick={() => {
-                  close();
-                  logout();
-                }}
-                className="flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-red-50 hover:text-red-600"
-              >
-                <LogOut className="h-4 w-4 shrink-0" />
-                Logout
-              </button>
-            </div>
           </div>
         </div>
       )}

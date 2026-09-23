@@ -115,6 +115,21 @@ export default function ProductsPage() {
   const { page, pageSize, search, category, sort } = urlState;
   const localOverrides = getLocalOverrides();
 
+  const applySort = useCallback((items: Product[], sortValue: string) => {
+    const parsed = parseSortValue(sortValue);
+    if (!parsed) return items;
+
+    const sorted = [...items];
+    sorted.sort((a, b) => {
+      let cmp = 0;
+      if (parsed.field === 'price') cmp = a.price - b.price;
+      else if (parsed.field === 'rating') cmp = a.rating - b.rating;
+      else if (parsed.field === 'title') cmp = a.title.localeCompare(b.title);
+      return parsed.direction === 'asc' ? cmp : -cmp;
+    });
+    return sorted;
+  }, []);
+
   const fetchProducts = useCallback(async () => {
     // Cancel any in-flight request
     if (abortControllerRef.current) {
@@ -132,36 +147,17 @@ export default function ProductsPage() {
       let response: ProductListResponse;
 
       if (search) {
-        // When searching, we fetch from the search endpoint.
-        // For client-side category filtering + pagination to work correctly,
-        // we need all matching search results, so we fetch with a large limit.
         response = await searchProducts(
           search,
           { limit: 1000, skip: 0 },
           controller.signal
         );
 
-        // Apply client-side category filter
         let filtered = response.products;
         if (category) {
           filtered = filtered.filter((p) => p.category === category);
         }
 
-        // Apply client-side sorting
-        if (sort) {
-          const parsed = parseSortValue(sort);
-          if (parsed) {
-            filtered = [...filtered].sort((a, b) => {
-              let cmp = 0;
-              if (parsed.field === 'price') cmp = a.price - b.price;
-              else if (parsed.field === 'rating') cmp = a.rating - b.rating;
-              else if (parsed.field === 'title') cmp = a.title.localeCompare(b.title);
-              return parsed.direction === 'asc' ? cmp : -cmp;
-            });
-          }
-        }
-
-        // Apply local mutations
         const { added, updated, deleted } = localOverrides;
         const filteredDeleted = filtered.filter((p) => !deleted.includes(p.id));
         const filteredAdded = search
@@ -175,31 +171,18 @@ export default function ProductsPage() {
         const addedFilteredByCategory = category
           ? filteredAdded.filter((p) => p.category === category)
           : filteredAdded;
+
         const allProducts = [...addedFilteredByCategory, ...filteredDeleted];
         const effectiveProducts = allProducts.map((p) => {
           const updates = updated[p.id];
           return updates ? { ...p, ...updates } : p;
         });
 
-        // Sort added products too if sort is active
-        if (sort) {
-          const parsed = parseSortValue(sort);
-          if (parsed) {
-            effectiveProducts.sort((a, b) => {
-              let cmp = 0;
-              if (parsed.field === 'price') cmp = a.price - b.price;
-              else if (parsed.field === 'rating') cmp = a.rating - b.rating;
-              else if (parsed.field === 'title') cmp = a.title.localeCompare(b.title);
-              return parsed.direction === 'asc' ? cmp : -cmp;
-            });
-          }
-        }
-
-        const totalCount = effectiveProducts.length;
+        const sortedProducts = applySort(effectiveProducts, sort);
+        const totalCount = sortedProducts.length;
         const skipVal = skipFromPage(page, pageSize);
-        const paged = effectiveProducts.slice(skipVal, skipVal + pageSize);
+        const paged = sortedProducts.slice(skipVal, skipVal + pageSize);
 
-        // Only apply if this is still the latest request
         if (currentRequestId === requestIdRef.current) {
           setProducts(paged);
           setTotal(totalCount);
@@ -207,31 +190,24 @@ export default function ProductsPage() {
         return;
       }
 
-      // Non-search path: use server-side sorting + pagination
       const sortParams = sortToParams(sort);
       const skipVal = skipFromPage(page, pageSize);
 
       if (category) {
-        // Fetch products by category with sorting and pagination.
-        // The API response is already limited and skipped for the current page,
-        // so we must not slice the returned page again.
-        const params: Record<string, string | number> = {
-          limit: pageSize,
-          skip: skipVal,
-        };
-        if (sortParams.sortBy) params.sortBy = sortParams.sortBy;
-        if (sortParams.order) params.order = sortParams.order;
-
-        // DummyJSON supports /products/category/{slug}
-        // We use the api instance directly through the products module
-        // But since getProducts doesn't support category, we'll handle it inline
         const { default: api } = await import('@/lib/api/axios');
         const { data } = await api.get<ProductListResponse>(
           `/products/category/${category}`,
-          { params, signal: controller.signal }
+          {
+            params: {
+              limit: 1000,
+              skip: 0,
+              ...(sortParams.sortBy ? { sortBy: sortParams.sortBy } : {}),
+              ...(sortParams.order ? { order: sortParams.order } : {}),
+            },
+            signal: controller.signal,
+          }
         );
 
-        // Apply local mutations
         const { added, updated, deleted } = localOverrides;
         const serverFiltered = data.products.filter((p) => !deleted.includes(p.id));
         const addedInCategory = added.filter(
@@ -243,39 +219,24 @@ export default function ProductsPage() {
           return updates ? { ...p, ...updates } : p;
         });
 
-        // Sort locally if sort is set (since added products aren't sorted server-side)
-        if (sort) {
-          const parsed = parseSortValue(sort);
-          if (parsed) {
-            effectiveProducts.sort((a, b) => {
-              let cmp = 0;
-              if (parsed.field === 'price') cmp = a.price - b.price;
-              else if (parsed.field === 'rating') cmp = a.rating - b.rating;
-              else if (parsed.field === 'title') cmp = a.title.localeCompare(b.title);
-              return parsed.direction === 'asc' ? cmp : -cmp;
-            });
-          }
-        }
-
-        // For category endpoint, total includes added products.
-        // The API already returned the correct page for this request.
-        const totalCount = data.total + addedInCategory.length;
+        const sortedProducts = applySort(effectiveProducts, sort);
+        const totalCount = sortedProducts.length;
+        const paged = sortedProducts.slice(skipVal, skipVal + pageSize);
 
         if (currentRequestId === requestIdRef.current) {
-          setProducts(effectiveProducts);
+          setProducts(paged);
           setTotal(totalCount);
         }
         return;
       }
 
-      // No category, no search: standard paginated fetch with sorting.
-      // The API already returned the requested page via limit/skip.
+      const requestLimit = sort ? 1000 : pageSize;
+      const requestSkip = sort ? 0 : skipVal;
       response = await getProducts(
-        { limit: pageSize, skip: skipVal, ...sortParams },
+        { limit: requestLimit, skip: requestSkip, ...sortParams },
         controller.signal
       );
 
-      // Apply local mutations
       const { added, updated, deleted } = localOverrides;
       const serverFiltered = response.products.filter((p) => !deleted.includes(p.id));
       const addedNotDeleted = added.filter((p) => !deleted.includes(p.id));
@@ -285,24 +246,22 @@ export default function ProductsPage() {
         return updates ? { ...p, ...updates } : p;
       });
 
-      // Sort locally if needed (to merge added products in correct order)
       if (sort) {
-        const parsed = parseSortValue(sort);
-        if (parsed) {
-          effectiveProducts.sort((a, b) => {
-            let cmp = 0;
-            if (parsed.field === 'price') cmp = a.price - b.price;
-            else if (parsed.field === 'rating') cmp = a.rating - b.rating;
-            else if (parsed.field === 'title') cmp = a.title.localeCompare(b.title);
-            return parsed.direction === 'asc' ? cmp : -cmp;
-          });
+        const sortedProducts = applySort(effectiveProducts, sort);
+        const totalCount = sortedProducts.length;
+        const paged = sortedProducts.slice(skipVal, skipVal + pageSize);
+
+        if (currentRequestId === requestIdRef.current) {
+          setProducts(paged);
+          setTotal(totalCount);
         }
+        return;
       }
 
       const totalCount = response.total + addedNotDeleted.length;
 
       if (currentRequestId === requestIdRef.current) {
-        setProducts(effectiveProducts);
+        setProducts(effectiveProducts.slice(skipVal, skipVal + pageSize));
         setTotal(totalCount);
       }
     } catch (err) {
