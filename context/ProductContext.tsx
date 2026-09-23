@@ -59,9 +59,9 @@ export function ProductProvider({ children }: { children: ReactNode }) {
 
   const addLocalProduct = useCallback((product: Product) => {
     setAddedProducts((prev) => {
-      const next = [product, ...prev];
-      setLocalAdded(next);
-      return next;
+      const deduped = [product, ...prev.filter((item) => item.id !== product.id)];
+      setLocalAdded(deduped);
+      return deduped;
     });
   }, []);
 

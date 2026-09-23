@@ -451,12 +451,7 @@ export default function ProductsPage() {
       <Header title="Products" subtitle="Manage your product catalog" />
 
       <div className="flex-1 p-4 lg:p-6 space-y-4">
-        {/* Toolbar: title + add button */}
-        <div className="flex items-center justify-between">
-          <div className="flex flex-col">
-            <h2 className="text-xl font-bold text-slate-900">Products</h2>
-            <p className="text-sm text-slate-500">Manage your product catalog</p>
-          </div>
+        <div className="flex items-center justify-end">
           <Button asChild>
             <Link href="/products/new">
               <PlusCircle className="mr-2 h-4 w-4" />
@@ -466,7 +461,6 @@ export default function ProductsPage() {
           </Button>
         </div>
 
-        {/* Filters */}
         <ProductFilters
           search={searchInput}
           onSearchChange={handleSearchChange}
@@ -497,13 +491,11 @@ export default function ProductsPage() {
 
         {showProducts && (
           <>
-            {/* Desktop Table */}
-            <div className="hidden md:block">
+            <div className="hidden lg:block">
               <ProductTable products={products} onDelete={handleDeleteClick} />
             </div>
 
-            {/* Mobile Cards */}
-            <div className="md:hidden grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:hidden">
               {products.map((product) => (
                 <ProductCard
                   key={product.id}
@@ -513,7 +505,6 @@ export default function ProductsPage() {
               ))}
             </div>
 
-            {/* Pagination */}
             <ProductPagination
               currentPage={pagination.currentPage}
               totalPages={pagination.totalPages}

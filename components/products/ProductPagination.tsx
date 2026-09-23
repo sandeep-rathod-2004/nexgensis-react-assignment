@@ -27,11 +27,11 @@ export default function ProductPagination({
   const pages = getPageNumbers(currentPage, totalPages);
 
   return (
-    <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
+    <div className="flex flex-col items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 shadow-soft sm:flex-row">
       <p className="text-sm text-slate-600" aria-live="polite">
-        Showing <span className="font-medium text-slate-900">{startIndex}</span>–
-        <span className="font-medium text-slate-900">{endIndex}</span> of{' '}
-        <span className="font-medium text-slate-900">{total}</span> products
+        Showing <span className="font-semibold text-slate-900">{startIndex}</span>–
+        <span className="font-semibold text-slate-900">{endIndex}</span> of{' '}
+        <span className="font-semibold text-slate-900">{total}</span> products
       </p>
 
       <nav className="flex items-center gap-1" aria-label="Pagination">
@@ -41,10 +41,10 @@ export default function ProductPagination({
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage <= 1}
           aria-label="Previous page"
-          className="h-9 px-3"
+          className="h-9 rounded-xl px-3"
         >
           <ChevronLeft className="h-4 w-4" />
-          <span className="hidden sm:inline ml-1">Previous</span>
+          <span className="ml-1 hidden sm:inline">Previous</span>
         </Button>
 
         <div className="flex items-center gap-1">
@@ -68,10 +68,10 @@ export default function ProductPagination({
                 aria-current={isActive ? 'page' : undefined}
                 aria-label={`Go to page ${page}`}
                 className={cn(
-                  'flex h-9 min-w-9 items-center justify-center rounded-md px-3 text-sm font-medium transition-colors',
+                  'flex h-9 min-w-9 items-center justify-center rounded-xl px-3 text-sm font-medium transition-all duration-200',
                   isActive
-                    ? 'bg-slate-900 text-white'
-                    : 'text-slate-700 hover:bg-slate-100 border border-slate-200'
+                    ? 'bg-slate-900 text-white shadow-sm'
+                    : 'border border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50'
                 )}
               >
                 {page}
@@ -86,9 +86,9 @@ export default function ProductPagination({
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage >= totalPages}
           aria-label="Next page"
-          className="h-9 px-3"
+          className="h-9 rounded-xl px-3"
         >
-          <span className="hidden sm:inline mr-1">Next</span>
+          <span className="mr-1 hidden sm:inline">Next</span>
           <ChevronRight className="h-4 w-4" />
         </Button>
       </nav>

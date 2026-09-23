@@ -60,7 +60,7 @@ function FormField({ label, required, error, htmlFor, children, hint }: FormFiel
 
 export default function ProductForm({ mode, initialProduct, categories }: ProductFormProps) {
   const router = useRouter();
-  const { createLocalProduct, updateLocalProduct } = useProductStore();
+  const { addLocalProduct, updateLocalProduct } = useProductStore();
 
   const [formData, setFormData] = useState<ProductFormData>({
     title: initialProduct?.title ?? '',
@@ -98,8 +98,19 @@ export default function ProductForm({ mode, initialProduct, categories }: Produc
       try {
         if (mode === 'create') {
           const created = await createProduct(formData);
-          // Also store locally so it appears in the list
-          createLocalProduct(formData);
+          const persistedProduct: Product = {
+            ...created,
+            title: created.title || formData.title,
+            description: created.description || formData.description,
+            category: created.category || formData.category,
+            price: Number(created.price ?? formData.price),
+            stock: Number(created.stock ?? formData.stock),
+            brand: created.brand || formData.brand || '',
+            rating: Number(created.rating ?? formData.rating ?? 0),
+            isLocal: true,
+          };
+
+          addLocalProduct(persistedProduct);
           toast.success('Product created', {
             description: `"${formData.title}" has been added to the catalog.`,
           });
@@ -132,7 +143,15 @@ export default function ProductForm({ mode, initialProduct, categories }: Produc
         setIsSubmitting(false);
       }
     },
-    [isSubmitting, formData, mode, initialProduct, router, createLocalProduct, updateLocalProduct]
+    [
+      isSubmitting,
+      formData,
+      mode,
+      initialProduct,
+      router,
+      addLocalProduct,
+      updateLocalProduct,
+    ]
   );
 
   const isEditMode = mode === 'edit';

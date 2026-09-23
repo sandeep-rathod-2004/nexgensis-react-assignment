@@ -53,31 +53,37 @@ export default function LoginPageContent() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
-        <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
+      <div className="flex min-h-screen items-center justify-center bg-slate-100 p-4">
+        <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 shadow-soft">
+          <Loader2 className="h-5 w-5 animate-spin text-slate-500" />
+          <span className="text-sm font-medium text-slate-600">Loading session...</span>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 to-slate-200 p-4">
-      <Card className="w-full max-w-md shadow-xl border-slate-200">
-        <CardHeader className="space-y-3 text-center">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-slate-900 text-white shadow-lg">
-            <Package2 className="h-7 w-7" />
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-slate-100 p-4">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(148,163,184,0.16),transparent_35%),radial-gradient(circle_at_bottom_right,_rgba(15,23,42,0.09),transparent_32%)]" />
+      <div className="absolute inset-x-0 top-0 h-72 bg-gradient-to-b from-slate-200/60 to-transparent" />
+
+      <Card className="relative w-full max-w-md border-slate-200 bg-white/90 shadow-elevated backdrop-blur-sm">
+        <CardHeader className="space-y-4 px-6 pt-6 text-center">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-900 text-white shadow-[0_18px_35px_rgba(15,23,42,0.28)] ring-4 ring-slate-100">
+            <Package2 className="h-8 w-8" />
           </div>
           <div>
-            <CardTitle className="text-2xl font-bold tracking-tight">Product Admin</CardTitle>
-            <CardDescription className="mt-1">
+            <CardTitle className="text-2xl font-bold tracking-[-0.04em] text-slate-900">Product Admin</CardTitle>
+            <CardDescription className="mt-2 text-sm text-slate-500">
               Sign in to manage your product catalog
             </CardDescription>
           </div>
         </CardHeader>
 
         <form onSubmit={handleSubmit} noValidate>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-5 px-6 pb-6 pt-0">
             {sessionExpired && (
-              <div className="flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+              <div className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
                 <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
                 <span>Your session has expired. Please sign in again.</span>
               </div>
@@ -85,7 +91,7 @@ export default function LoginPageContent() {
 
             {loginError && (
               <div
-                className="flex items-start gap-2 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-800"
+                className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700"
                 role="alert"
               >
                 <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
@@ -94,7 +100,7 @@ export default function LoginPageContent() {
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
+              <Label htmlFor="username" className="text-sm font-medium text-slate-700">Username</Label>
               <Input
                 id="username"
                 type="text"
@@ -110,6 +116,7 @@ export default function LoginPageContent() {
                 aria-invalid={!!validationErrors.username}
                 aria-describedby={validationErrors.username ? 'username-error' : undefined}
                 placeholder="Enter your username"
+                className="transition-all duration-200"
               />
               {validationErrors.username && (
                 <p id="username-error" className="text-sm text-red-600" role="alert">
@@ -119,7 +126,7 @@ export default function LoginPageContent() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password" className="text-sm font-medium text-slate-700">Password</Label>
               <div className="relative">
                 <Input
                   id="password"
@@ -141,7 +148,7 @@ export default function LoginPageContent() {
                 <button
                   type="button"
                   onClick={() => setShowPassword((s) => !s)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md p-1 text-slate-400 transition-colors hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                   tabIndex={-1}
                 >
@@ -156,10 +163,10 @@ export default function LoginPageContent() {
             </div>
           </CardContent>
 
-          <CardFooter className="flex flex-col gap-3">
+          <CardFooter className="flex flex-col gap-3 border-t border-slate-200/80 px-6 py-4">
             <Button
               type="submit"
-              className="w-full"
+              className="w-full shadow-[0_10px_24px_rgba(15,23,42,0.12)]"
               disabled={isLoggingIn}
               aria-busy={isLoggingIn}
             >

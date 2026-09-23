@@ -24,18 +24,19 @@ export default function MobileNav() {
 
   return (
     <>
-      <header className="lg:hidden sticky top-0 z-30 flex h-14 items-center justify-between border-b border-slate-200 bg-white px-4">
+      <header className="lg:hidden sticky top-0 z-30 flex h-16 items-center justify-between border-b border-slate-200 bg-white/80 px-4 backdrop-blur-sm">
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900 text-white">
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-900 text-white shadow-sm">
             <Package2 className="h-4 w-4" />
           </div>
-          <span className="text-sm font-bold text-slate-900">Product Admin</span>
+          <span className="text-sm font-bold tracking-[-0.03em] text-slate-900">Product Admin</span>
         </div>
         <Button
           variant="ghost"
           size="icon"
           onClick={() => setOpen(true)}
           aria-label="Open navigation menu"
+          className="rounded-xl"
         >
           <Menu className="h-5 w-5" />
         </Button>
@@ -44,24 +45,25 @@ export default function MobileNav() {
       {open && (
         <div className="lg:hidden fixed inset-0 z-50" role="dialog" aria-modal="true">
           <div
-            className="absolute inset-0 bg-black/50"
+            className="absolute inset-0 bg-slate-950/45"
             onClick={close}
             aria-hidden="true"
           />
-          <div className="absolute right-0 top-0 h-full w-72 bg-white shadow-xl flex flex-col">
-            <div className="flex items-center justify-between px-5 h-14 border-b border-slate-200">
+          <div className="absolute right-0 top-0 flex h-full w-72 flex-col bg-white shadow-[0_0_36px_rgba(15,23,42,0.16)]">
+            <div className="flex h-16 items-center justify-between border-b border-slate-200 px-5">
               <span className="text-sm font-bold text-slate-900">Menu</span>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={close}
                 aria-label="Close navigation menu"
+                className="rounded-xl"
               >
                 <X className="h-5 w-5" />
               </Button>
             </div>
 
-            <nav className="flex-1 px-3 py-4 space-y-1" aria-label="Mobile navigation">
+            <nav className="flex-1 space-y-1 px-3 py-4" aria-label="Mobile navigation">
               {navItems.map((item) => {
                 const isActive =
                   item.href === '/products'
@@ -74,14 +76,19 @@ export default function MobileNav() {
                     href={item.href}
                     onClick={close}
                     className={cn(
-                      'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+                      'flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium transition-all',
                       isActive
-                        ? 'bg-slate-900 text-white'
+                        ? 'bg-slate-900 text-white shadow-sm'
                         : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                     )}
                     aria-current={isActive ? 'page' : undefined}
                   >
-                    <Icon className="h-4.5 w-4.5 shrink-0" />
+                    <span className={cn(
+                      'flex h-8 w-8 items-center justify-center rounded-xl',
+                      isActive ? 'bg-white/10 text-white' : 'bg-slate-100 text-slate-600'
+                    )}>
+                      <Icon className="h-4 w-4 shrink-0" />
+                    </span>
                     {item.label}
                   </Link>
                 );
@@ -89,8 +96,8 @@ export default function MobileNav() {
             </nav>
 
             <div className="border-t border-slate-200 p-3">
-              <div className="flex items-center gap-3 px-3 py-2 mb-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-200 text-xs font-semibold text-slate-700 overflow-hidden">
+              <div className="mb-2 flex items-center gap-3 rounded-2xl bg-slate-50 px-3 py-2.5">
+                <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-slate-200 text-xs font-semibold text-slate-700">
                   {user?.image ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={user.image} alt="" className="h-full w-full object-cover" />
@@ -98,11 +105,11 @@ export default function MobileNav() {
                     <span>{user?.firstName?.[0] ?? 'U'}</span>
                   )}
                 </div>
-                <div className="flex flex-col min-w-0">
-                  <span className="text-sm font-medium text-slate-900 truncate">
+                <div className="flex min-w-0 flex-col">
+                  <span className="truncate text-sm font-medium text-slate-900">
                     {user?.firstName} {user?.lastName}
                   </span>
-                  <span className="text-xs text-slate-500 truncate">{user?.email}</span>
+                  <span className="truncate text-[11px] text-slate-500">{user?.email}</span>
                 </div>
               </div>
               <button
@@ -110,9 +117,9 @@ export default function MobileNav() {
                   close();
                   logout();
                 }}
-                className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-red-50 hover:text-red-600 transition-colors"
+                className="flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-red-50 hover:text-red-600"
               >
-                <LogOut className="h-4.5 w-4.5 shrink-0" />
+                <LogOut className="h-4 w-4 shrink-0" />
                 Logout
               </button>
             </div>

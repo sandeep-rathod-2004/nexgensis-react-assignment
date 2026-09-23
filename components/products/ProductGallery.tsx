@@ -17,13 +17,13 @@ export default function ProductGallery({ images, title }: ProductGalleryProps) {
 
   return (
     <div className="space-y-3">
-      <div className="relative aspect-square w-full overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
+      <div className="relative aspect-square w-full overflow-hidden rounded-[1.5rem] border border-slate-200 bg-slate-50 shadow-[0_18px_40px_rgba(15,23,42,0.08)]">
         <Image
           src={activeImage}
           alt={`${title} - Image ${safeIndex + 1}`}
           fill
           sizes="(max-width: 768px) 100vw, 400px"
-          className="object-cover"
+          className="object-cover transition-transform duration-300 hover:scale-[1.02]"
           unoptimized
           priority
         />
@@ -36,9 +36,9 @@ export default function ProductGallery({ images, title }: ProductGalleryProps) {
               key={i}
               onClick={() => setActiveIndex(i)}
               className={cn(
-                'relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border-2 bg-slate-50 transition-all',
+                'relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border-2 bg-slate-50 transition-all duration-200',
                 i === safeIndex
-                  ? 'border-slate-900 ring-2 ring-slate-900 ring-offset-1'
+                  ? 'border-slate-900 ring-2 ring-slate-200 ring-offset-1'
                   : 'border-slate-200 hover:border-slate-400'
               )}
               aria-label={`View image ${i + 1}`}

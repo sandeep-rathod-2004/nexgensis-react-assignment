@@ -145,13 +145,15 @@ export default function ProductDetailsPage() {
       <>
         <Header title="Product Not Found" />
         <div className="flex-1 p-4 lg:p-6">
-          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-slate-300 bg-white py-20 text-center">
-            <Package className="h-12 w-12 text-slate-400" />
+          <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white/90 py-20 text-center shadow-soft">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-100">
+              <Package className="h-8 w-8 text-slate-400" />
+            </div>
             <h2 className="mt-4 text-xl font-bold text-slate-900">Product not found</h2>
-            <p className="mt-2 text-sm text-slate-500 max-w-sm">
+            <p className="mt-2 max-w-sm text-sm text-slate-500">
               The product you are looking for does not exist or may have been removed.
             </p>
-            <Button asChild className="mt-6">
+            <Button asChild className="mt-6 rounded-xl">
               <Link href="/products">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Return to Products
@@ -180,17 +182,16 @@ export default function ProductDetailsPage() {
     <>
       <Header title="Product Details" subtitle={product.title} />
 
-      <div className="flex-1 p-4 lg:p-6 space-y-6">
-        {/* Action bar */}
+      <div className="flex-1 space-y-6 p-4 lg:p-6">
         <div className="flex items-center justify-between gap-2">
-          <Button asChild variant="outline" size="sm">
+          <Button asChild variant="outline" size="sm" className="rounded-xl">
             <Link href="/products">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Products
             </Link>
           </Button>
           <div className="flex items-center gap-2">
-            <Button asChild variant="outline" size="sm">
+            <Button asChild variant="outline" size="sm" className="rounded-xl">
               <Link href={`/products/${product.id}/edit`}>
                 <Pencil className="mr-2 h-3.5 w-3.5" />
                 Edit
@@ -199,7 +200,7 @@ export default function ProductDetailsPage() {
             <Button
               variant="outline"
               size="sm"
-              className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
+              className="rounded-xl border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
               onClick={handleDeleteClick}
             >
               <Trash2 className="mr-2 h-3.5 w-3.5" />
@@ -208,22 +209,19 @@ export default function ProductDetailsPage() {
           </div>
         </div>
 
-        {/* Main content */}
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          {/* Gallery */}
-          <div className="lg:sticky lg:top-20 lg:self-start">
+          <div className="lg:self-start">
             <ProductGallery images={product.images} title={product.title} />
           </div>
 
-          {/* Info */}
           <div className="space-y-6">
-            <div className="rounded-lg border border-slate-200 bg-white p-6">
+            <div className="rounded-[1.5rem] border border-slate-200 bg-white/95 p-6 shadow-soft">
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
-                  <Badge variant="secondary" className="mb-2 capitalize">
+                  <Badge variant="secondary" className="mb-2 rounded-full capitalize">
                     {product.category.replace(/-/g, ' ')}
                   </Badge>
-                  <h1 className="text-2xl font-bold text-slate-900">{product.title}</h1>
+                  <h1 className="text-2xl font-bold tracking-[-0.04em] text-slate-900">{product.title}</h1>
                   {product.brand && (
                     <p className="mt-1 text-sm text-slate-500">by {product.brand}</p>
                   )}
@@ -231,9 +229,9 @@ export default function ProductDetailsPage() {
               </div>
 
               <div className="mt-4 flex items-baseline gap-3">
-                <span className="text-3xl font-bold text-slate-900">{formatPrice(product.price)}</span>
+                <span className="text-3xl font-bold tracking-[-0.04em] text-slate-900">{formatPrice(product.price)}</span>
                 {product.discountPercentage > 0 && (
-                  <span className="text-sm text-emerald-600 font-medium">
+                  <span className="text-sm font-medium text-emerald-600">
                     Save {product.discountPercentage}%
                   </span>
                 )}
@@ -247,21 +245,19 @@ export default function ProductDetailsPage() {
                     ({product.reviews?.length ?? 0} reviews)
                   </span>
                 </div>
-                <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${stockBadgeClasses(product.stock)}`}>
+                <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${stockBadgeClasses(product.stock)}`}>
                   {stockStatusLabel(product.stock)} ({product.stock})
                 </span>
               </div>
             </div>
 
-            {/* Description */}
-            <div className="rounded-lg border border-slate-200 bg-white p-6">
-              <h2 className="text-sm font-semibold text-slate-900 mb-2">Description</h2>
-              <p className="text-sm text-slate-600 leading-relaxed">{product.description}</p>
+            <div className="rounded-[1.5rem] border border-slate-200 bg-white/95 p-6 shadow-soft">
+              <h2 className="mb-2 text-sm font-semibold text-slate-900">Description</h2>
+              <p className="text-sm leading-relaxed text-slate-600">{product.description}</p>
             </div>
 
-            {/* Details grid */}
-            <div className="rounded-lg border border-slate-200 bg-white p-6">
-              <h2 className="text-sm font-semibold text-slate-900 mb-4">Product Information</h2>
+            <div className="rounded-[1.5rem] border border-slate-200 bg-white/95 p-6 shadow-soft">
+              <h2 className="mb-4 text-sm font-semibold text-slate-900">Product Information</h2>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <InfoRow icon={Tag} label="SKU" value={product.sku} />
                 <InfoRow icon={Barcode} label="Barcode" value={product.meta?.barcode ?? '—'} />
@@ -275,11 +271,11 @@ export default function ProductDetailsPage() {
                 <InfoRow icon={Tag} label="Availability" value={product.availabilityStatus || '—'} />
               </div>
               {product.tags && product.tags.length > 0 && (
-                <div className="mt-4 pt-4 border-t border-slate-100">
-                  <p className="text-xs font-medium text-slate-500 mb-2">Tags</p>
+                <div className="mt-4 border-t border-slate-100 pt-4">
+                  <p className="mb-2 text-xs font-medium text-slate-500">Tags</p>
                   <div className="flex flex-wrap gap-1.5">
                     {product.tags.map((tag) => (
-                      <Badge key={tag} variant="outline" className="text-xs">
+                      <Badge key={tag} variant="outline" className="rounded-full text-xs">
                         {tag}
                       </Badge>
                     ))}
@@ -290,7 +286,6 @@ export default function ProductDetailsPage() {
           </div>
         </div>
 
-        {/* Reviews */}
         <div>
           <h2 className="text-lg font-bold text-slate-900 mb-4">Customer Reviews</h2>
           <ProductReviews reviews={product.reviews ?? []} />

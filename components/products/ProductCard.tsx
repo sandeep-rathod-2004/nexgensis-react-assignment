@@ -15,10 +15,10 @@ interface ProductCardProps {
 
 export default function ProductCard({ product, onDelete }: ProductCardProps) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+    <div className="rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:shadow-elevated">
       <div className="flex gap-3">
         <Link href={`/products/${product.id}`} className="shrink-0">
-          <div className="relative h-16 w-16 overflow-hidden rounded-lg border border-slate-200 bg-slate-50">
+          <div className="relative h-16 w-16 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 shadow-sm transition-transform duration-200 hover:scale-[1.03]">
             <Image
               src={product.thumbnail}
               alt={product.title}
@@ -29,24 +29,24 @@ export default function ProductCard({ product, onDelete }: ProductCardProps) {
             />
           </div>
         </Link>
-        <div className="flex-1 min-w-0">
+        <div className="min-w-0 flex-1">
           <Link href={`/products/${product.id}`}>
-            <h3 className="text-sm font-semibold text-slate-900 line-clamp-2 hover:text-slate-700">
+            <h3 className="line-clamp-2 text-sm font-semibold text-slate-900 transition-colors hover:text-slate-700">
               {product.title}
             </h3>
           </Link>
           {product.brand && (
-            <p className="text-xs text-slate-400 mt-0.5">{product.brand}</p>
+            <p className="mt-1 text-[11px] text-slate-400">{product.brand}</p>
           )}
-          <span className="mt-1 inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700 capitalize">
+          <span className="mt-2 inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium capitalize text-slate-700">
             {product.category.replace(/-/g, ' ')}
           </span>
         </div>
       </div>
 
-      <div className="mt-3 flex items-center justify-between">
-        <span className="text-lg font-bold text-slate-900">{formatPrice(product.price)}</span>
-        <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${stockBadgeClasses(product.stock)}`}>
+      <div className="mt-4 flex items-center justify-between">
+        <span className="text-lg font-bold tracking-[-0.02em] text-slate-900">{formatPrice(product.price)}</span>
+        <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${stockBadgeClasses(product.stock)}`}>
           {stockStatusLabel(product.stock)}
         </span>
       </div>
@@ -56,17 +56,17 @@ export default function ProductCard({ product, onDelete }: ProductCardProps) {
           <StarRating rating={product.rating} size="sm" />
           <span className="text-xs text-slate-600">{formatRating(product.rating)}</span>
         </div>
-        <span className="text-xs text-slate-500">{product.stock} in stock</span>
+        <span className="text-[11px] text-slate-500">{product.stock} in stock</span>
       </div>
 
-      <div className="mt-3 flex items-center gap-2 border-t border-slate-100 pt-3">
-        <Button asChild variant="outline" size="sm" className="flex-1">
+      <div className="mt-4 flex items-center gap-2 border-t border-slate-100 pt-3">
+        <Button asChild variant="outline" size="sm" className="flex-1 rounded-xl">
           <Link href={`/products/${product.id}`}>
             <Eye className="mr-1.5 h-3.5 w-3.5" />
             View
           </Link>
         </Button>
-        <Button asChild variant="outline" size="sm" className="flex-1">
+        <Button asChild variant="outline" size="sm" className="flex-1 rounded-xl">
           <Link href={`/products/${product.id}/edit`}>
             <Pencil className="mr-1.5 h-3.5 w-3.5" />
             Edit
@@ -75,7 +75,7 @@ export default function ProductCard({ product, onDelete }: ProductCardProps) {
         <Button
           variant="outline"
           size="sm"
-          className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
+          className="rounded-xl border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
           onClick={() => onDelete(product)}
           aria-label={`Delete ${product.title}`}
         >

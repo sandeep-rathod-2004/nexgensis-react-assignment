@@ -55,7 +55,16 @@ export function clearAllLocalMutations(): void {
   window.localStorage.removeItem(DELETED_KEY);
 }
 
-let nextLocalId = -1;
 export function generateLocalId(): number {
-  return nextLocalId--;
+  const localProducts = getLocalAdded();
+  const localIds = localProducts
+    .map((product) => Number(product.id))
+    .filter((id) => Number.isFinite(id));
+
+  if (localIds.length === 0) {
+    return -1;
+  }
+
+  const nextId = Math.min(...localIds) - 1;
+  return Number.isFinite(nextId) ? nextId : -1;
 }

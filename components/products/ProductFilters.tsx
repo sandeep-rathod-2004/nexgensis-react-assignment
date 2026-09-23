@@ -45,11 +45,10 @@ export default function ProductFilters({
   onClearFilters,
 }: ProductFiltersProps) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4 space-y-4">
+    <div className="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-soft backdrop-blur-sm">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-3">
-        {/* Search */}
-        <div className="relative flex-1 min-w-0">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" aria-hidden="true" />
+        <div className="relative min-w-0 flex-1">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden="true" />
           <Input
             type="search"
             placeholder="Search products..."
@@ -59,14 +58,13 @@ export default function ProductFilters({
             aria-label="Search products"
           />
           {isSearching && (
-            <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-slate-400" aria-hidden="true" />
+            <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-slate-400" aria-hidden="true" />
           )}
         </div>
 
-        {/* Sort */}
         <div className="w-full sm:w-48">
           <Select value={sort || 'none'} onValueChange={(v) => onSortChange(v === 'none' ? '' : v)}>
-            <SelectTrigger aria-label="Sort products">
+            <SelectTrigger aria-label="Sort products" className="rounded-xl border-slate-200 bg-white shadow-sm">
               <SelectValue placeholder="Sort by..." />
             </SelectTrigger>
             <SelectContent>
@@ -81,11 +79,10 @@ export default function ProductFilters({
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-3">
-        {/* Category */}
+      <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-3">
         <div className="w-full sm:w-52">
           <Select value={category || 'all'} onValueChange={(v) => onCategoryChange(v === 'all' ? '' : v)}>
-            <SelectTrigger aria-label="Filter by category">
+            <SelectTrigger aria-label="Filter by category" className="rounded-xl border-slate-200 bg-white shadow-sm">
               <SelectValue placeholder="All Categories" />
             </SelectTrigger>
             <SelectContent>
@@ -105,13 +102,12 @@ export default function ProductFilters({
           </Select>
         </div>
 
-        {/* Page Size */}
         <div className="w-full sm:w-36">
           <Select
             value={String(pageSize)}
             onValueChange={(v) => onPageSizeChange(parseInt(v, 10))}
           >
-            <SelectTrigger aria-label="Items per page">
+            <SelectTrigger aria-label="Items per page" className="rounded-xl border-slate-200 bg-white shadow-sm">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -124,7 +120,6 @@ export default function ProductFilters({
           </Select>
         </div>
 
-        {/* Clear Filters */}
         {hasActiveFilters && (
           <Button
             variant="outline"
