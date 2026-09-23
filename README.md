@@ -1,229 +1,556 @@
-# Product Admin Dashboard
+# 🚀 Product Admin Dashboard
 
-## Overview
+<p align="center">
+  <strong>A modern, responsive product administration dashboard built with Next.js, React, TypeScript, Tailwind CSS, Axios, and DummyJSON.</strong>
+</p>
 
-A professional admin dashboard where an authenticated user can log in and manage products using the free [DummyJSON API](https://dummyjson.com). The application features a full product CRUD interface with search, filtering, sorting, pagination, and client-side persistence of mutations.
+<p align="center">
+  <a href="https://nexgensis-react-assignment-eight.vercel.app/">
+    🌐 Live Demo
+  </a>
+  &nbsp; • &nbsp;
+  <a href="https://github.com/sandeep-rathod-2004/nexgensis-react-assignment">
+    💻 GitHub Repository
+  </a>
+</p>
 
-## Tech Stack
+---
 
-- **Next.js** (App Router) — React framework with file-based routing
-- **React** — UI library with hooks
-- **TypeScript** — Strict type safety throughout
-- **Tailwind CSS** — Utility-first styling
-- **Axios** — HTTP client for all API communication
-- **DummyJSON API** — Mock REST API for product data and authentication
-- **shadcn/ui** components — Radix UI primitives styled with Tailwind
-- **lucide-react** — Icon library
-- **sonner** — Toast notifications
+## ✨ Overview
 
-## Features
+A full-featured **Product Admin Dashboard** designed for managing products through a clean and responsive interface.
 
-- **Authentication** — Login with DummyJSON credentials, token-based session, protected routes
-- **Product List** — Desktop table view and mobile card view with proper formatting
-- **Search** — Debounced search (400ms) with AbortController-based race condition protection
-- **Category Filter** — Dropdown populated from the API, with client-side filtering for search results
-- **Sorting** — Sort by price, rating, or title in ascending or descending order
-- **Pagination** — Manual pagination with page numbers, prev/next buttons, and page size selector (10/20/50)
-- **URL State** — All filter/sort/pagination state lives in the URL; refresh-safe and shareable
-- **Product Details** — Image gallery, full product info, customer reviews
-- **Add/Edit Product** — Validated forms with inline error messages and loading states
-- **Delete Product** — Confirmation modal with loading state
-- **Local CRUD Persistence** — Mutations stored in localStorage so changes survive page refresh
-- **Loading States** — Skeleton loaders for tables, forms, and detail pages
-- **Empty States** — Professional empty state with clear filters and add product actions
-- **Error States** — Centralized error normalization with retry buttons
-- **Toast Feedback** — Success and error notifications for all key actions
-- **Responsive Design** — Sidebar collapses to mobile nav, table switches to cards
-- **Accessibility** — Semantic HTML, ARIA labels, keyboard navigation, focus states
+The application includes authentication, protected routes, product management, search, filtering, sorting, pagination, CRUD operations, local persistence, caching, responsive layouts, and robust error handling.
 
-## Authentication
+---
 
-The application uses DummyJSON's authentication endpoint (`POST /auth/login`). The provided demo credentials are:
+## 🖥️ Live Demo
 
-- **Username:** `emilys`
-- **Password:** `emilyspass`
+### 🌐 [Open Product Admin Dashboard](https://nexgensis-react-assignment-eight.vercel.app/)
 
-These credentials are pre-filled on the login page for convenience. The app authenticates through the API — no tokens are hardcoded. On successful login, the access token and user data are stored in `localStorage` and attached to subsequent requests via an Axios request interceptor. Unauthenticated users are redirected to `/login`. A 401 response from any API call clears the session and redirects to login.
+### 💻 [View Source Code](https://github.com/sandeep-rathod-2004/nexgensis-react-assignment)
 
-## API
+---
 
-All API communication uses a shared Axios instance (`lib/api/axios.ts`) configured with:
+## 🛠️ Tech Stack
 
-- Base URL: `https://dummyjson.com`
-- Request interceptor: attaches the Bearer token from localStorage
-- Response interceptor: normalizes errors, handles 401 by clearing session
+| Technology | Purpose |
+|---|---|
+| ⚛️ **React** | UI development |
+| ▲ **Next.js** | App Router & application framework |
+| 🔷 **TypeScript** | Type safety |
+| 🎨 **Tailwind CSS** | Styling & responsive design |
+| 📡 **Axios** | API communication |
+| 🧪 **DummyJSON** | Mock REST API |
+| 🧩 **shadcn/ui** | UI components |
+| 🎯 **lucide-react** | Icons |
+| 🔔 **Sonner** | Toast notifications |
 
-API functions are organized in:
-- `lib/api/auth.ts` — `loginUser()`, `getCurrentUser()`
-- `lib/api/products.ts` — `getProducts()`, `searchProducts()`, `getProduct()`, `createProduct()`, `updateProduct()`, `deleteProduct()`
-- `lib/api/categories.ts` — `getCategories()`
+---
 
-UI components never call Axios directly — they use the API layer functions.
+# ✨ Features
 
-## Project Structure
+## 🔐 Authentication
 
-```
+- 🔑 DummyJSON authentication
+- 🛡️ Protected product routes
+- 🚪 Login / Logout
+- 🔄 Automatic redirect for unauthenticated users
+- ⚠️ Centralized `401` handling
+- 🎫 Bearer token attached through Axios interceptor
+
+### 🔑 Demo Credentials
+
+```text
+Username: emilys
+Password: emilyspass
+📦 Product Management
+📋 Desktop product table
+📱 Mobile responsive product cards
+🖼️ Product images
+🏷️ Product title & category
+💰 Price
+⭐ Rating
+📦 Stock
+👁️ Product details
+💬 Product reviews
+➕ Add product
+✏️ Edit product
+🗑️ Delete product
+⚠️ Delete confirmation modal
+🔎 Smart Product Search
+
+The dashboard supports fast product searching with both API and local filtering.
+
+Search Features
+⚡ 250ms debounce
+🔍 DummyJSON /products/search?q= integration
+📡 Axios-based requests
+🛑 AbortController cancellation
+🧠 Request-ID race-condition protection
+💾 Cached catalog filtering
+➕ Local products included in search
+✏️ Updated products included
+🗑️ Deleted products excluded
+🔍 Search Fields
+
+Search works across:
+
+Title
+Description
+Brand
+Category
+Tags
+
+Basic singular/plural matching is also supported:
+
+laptop
+laptops
+🎛️ Filtering & Sorting
+🗂️ Category Filtering
+
+Products can be filtered by category.
+
+↕️ Sorting
+Sort Option	Direction
+💰 Price	Low → High
+💰 Price	High → Low
+⭐ Rating	Low → High
+⭐ Rating	High → Low
+🔤 Title	A → Z
+🔤 Title	Z → A
+
+Sorting is applied before pagination.
+
+📄 Pagination
+
+Manual pagination is implemented without a pagination library.
+
+Available Page Sizes
+10
+20
+50
+Pagination Controls
+◀️ Previous
+🔢 Page numbers
+▶️ Next
+📊 Current page
+📈 Total pages
+📦 Total matching products
+
+Example:
+
+Showing 21–40 of 194
+
+Pagination is calculated after filtering and sorting.
+
+⚡ Performance & Caching
+
+The product dashboard is optimized to avoid unnecessary repeated API requests.
+
+🚀 Product Catalog Flow
+             Products Page
+                   │
+                   ▼
+                Axios
+                   │
+                   ▼
+          DummyJSON Catalog
+                   │
+                   ▼
+            sessionStorage
+                   │
+                   ▼
+        Local Product Catalog
+                   │
+       ┌───────────┼───────────┐
+       ▼           ▼           ▼
+    Search      Filter       Sort
+       │           │           │
+       └───────────┼───────────┘
+                   ▼
+              Pagination
+                   │
+                   ▼
+              UI Results
+
+After the catalog is loaded, these operations are handled locally:
+
+⚡ Pagination
+🗂️ Category filtering
+↕️ Sorting
+📄 Page-size changes
+🔎 Search matching
+📊 Total calculation
+
+This significantly reduces unnecessary product-list API requests.
+
+🧠 Search Race-Condition Protection
+
+Search uses three layers of protection.
+
+1️⃣ Debouncing
+250ms
+
+Prevents a request from being triggered for every keystroke.
+
+2️⃣ AbortController
+
+When a newer request starts, the previous request can be cancelled.
+
+3️⃣ Request ID
+
+Every request receives a unique ID.
+
+Only the latest request is allowed to update the displayed results.
+
+Example:
+
+User searches:
+
+phone
+   ↓
+iphone
+
+If the phone response arrives after the iphone response, the stale response cannot overwrite the newer result.
+
+🔗 URL-Based State
+
+The product-list state is stored in URL parameters.
+
+/products?page=2&pageSize=20&search=phone&category=smartphones&sort=price-asc
+Stored State
+🔎 Search
+🗂️ Category
+↕️ Sort
+📄 Page
+📏 Page size
+Benefits
+🔄 Survives page refresh
+🔖 Bookmarkable
+🔗 Shareable
+↩️ Browser back/forward support
+🛡️ Invalid values are safely normalized
+🔄 CRUD Operations
+
+The dashboard supports complete product CRUD functionality.
+
+Operation	Support
+➕ Create	✅
+👁️ Read	✅
+✏️ Update	✅
+🗑️ Delete	✅
+➕ Create
+
+Products can be added through the Add Product page with form validation.
+
+✏️ Update
+
+Existing products can be edited through the Edit Product page.
+
+🗑️ Delete
+
+Products require confirmation before deletion.
+
+Loading and error states are shown during the operation.
+
+💾 Local CRUD Persistence
+
+DummyJSON mutation endpoints are simulated and do not permanently modify the server dataset.
+
+To provide a consistent dashboard experience, local mutations are maintained using ProductContext and localStorage.
+
+➕ Added Products
+
+Stored as complete product objects.
+
+Negative IDs distinguish locally created products from server products.
+
+✏️ Updated Products
+
+Stored as partial overrides keyed by product ID.
+
+🗑️ Deleted Products
+
+Deleted product IDs are stored locally and excluded from displayed results.
+
+Create
+  ↓
+localStorage
+  ↓
+Product Context
+  ↓
+Product Catalog
+  ↓
+UI
+🌐 API Architecture
+
+All API communication goes through a shared Axios instance.
+
+lib/api/
+├── axios.ts
+├── auth.ts
+├── products.ts
+└── categories.ts
+Axios Responsibilities
+🌐 Base URL configuration
+🔐 Authentication token attachment
+⚠️ Centralized error handling
+🚨 401 handling
+🧹 Error normalization
+
+UI components do not directly call Axios.
+
+🧩 API Functions
+🔐 Authentication
+loginUser()
+getCurrentUser()
+📦 Products
+getProducts()
+searchProducts()
+getProduct()
+createProduct()
+updateProduct()
+deleteProduct()
+🗂️ Categories
+getCategories()
+📁 Project Structure
 app/
-  layout.tsx              — Root layout with AuthProvider, ProductProvider, Toaster
-  page.tsx                — Redirects to /products
-  not-found.tsx           — Global 404 page
-  login/
-    page.tsx              — Suspense wrapper
-    LoginPageContent.tsx  — Login form (uses useSearchParams)
-  products/
-    layout.tsx            — Dashboard layout with ProtectedRoute, Sidebar, MobileNav
-    page.tsx              — Product list with filters, table/cards, pagination
-    new/
-      page.tsx            — Add product form
-    [id]/
-      page.tsx            — Product details with gallery and reviews
-      edit/
-        page.tsx          — Edit product form
+├── layout.tsx
+├── page.tsx
+├── not-found.tsx
+│
+├── login/
+│   ├── page.tsx
+│   └── LoginPageContent.tsx
+│
+└── products/
+    ├── layout.tsx
+    ├── page.tsx
+    │
+    ├── new/
+    │   └── page.tsx
+    │
+    └── [id]/
+        ├── page.tsx
+        └── edit/
+            └── page.tsx
 
 components/
-  layout/
-    Sidebar.tsx           — Desktop sidebar navigation
-    Header.tsx            — Dashboard header with user dropdown
-    MobileNav.tsx         — Mobile slide-out navigation
-  auth/
-    ProtectedRoute.tsx    — Route guard wrapper
-  products/
-    ProductTable.tsx      — Desktop table view
-    ProductCard.tsx       — Mobile card view
-    ProductFilters.tsx    — Search, category, sort, page size toolbar
-    ProductPagination.tsx — Manual pagination controls
-    ProductForm.tsx       — Shared add/edit form with validation
-    ProductGallery.tsx    — Image gallery with thumbnails
-    ProductReviews.tsx    — Customer reviews display
-    DeleteProductModal.tsx— Delete confirmation dialog
-    ProductEmptyState.tsx — Empty state with actions
-    ProductSkeleton.tsx   — Skeleton loaders for table and detail
-    ProductFormSkeleton.tsx — Skeleton loader for form
-    StarRating.tsx        — Visual star rating component
-  ui/
-    ErrorState.tsx        — Reusable error state with retry
-    (other shadcn/ui components)
+├── auth/
+├── layout/
+├── products/
+└── ui/
 
 context/
-  AuthContext.tsx         — Authentication state and actions
-  ProductContext.tsx      — Local mutation store (add/update/delete)
+├── AuthContext.tsx
+└── ProductContext.tsx
 
 lib/
-  api/
-    axios.ts              — Shared Axios instance with interceptors
-    auth.ts               — Authentication API functions
-    products.ts           — Product API functions
-    categories.ts         — Category API functions
-  utils/
-    pagination.ts         — Pagination calculations and page number generation
-    validation.ts         — Form validation and sort option definitions
-    formatting.ts         — Price, date, rating, and stock formatting
-    url-state.ts          — URL parameter parsing and building
-    local-mutations.ts    — localStorage helpers for local CRUD persistence
+├── api/
+│   ├── axios.ts
+│   ├── auth.ts
+│   ├── products.ts
+│   └── categories.ts
+│
+└── utils/
+    ├── pagination.ts
+    ├── validation.ts
+    ├── formatting.ts
+    ├── url-state.ts
+    ├── local-mutations.ts
+    └── product-cache.ts
 
 types/
-  auth.ts                 — User, AuthResponse, LoginCredentials types
-  product.ts              — Product, Review, Category, form types
-  index.ts                — Re-exports
-```
+├── auth.ts
+├── product.ts
+└── index.ts
+📱 Responsive Design
 
-## Setup
+The dashboard is optimized for desktop and mobile devices.
 
-```bash
-npm install
-npm run dev
-```
+🖥️ Desktop
 
-The application will be available at `http://localhost:3000`.
+Products are displayed in a structured table.
 
-## Environment Variables
+📱 Mobile
 
-No environment variables are required. The application uses the public DummyJSON API at `https://dummyjson.com` with no API key. All configuration is handled in the shared Axios instance.
+Products automatically switch to responsive cards.
 
-## Build
+The desktop sidebar also changes to mobile navigation.
 
-```bash
+♿ Accessibility
+
+Accessibility considerations include:
+
+🏷️ Semantic HTML
+🎯 ARIA labels
+⌨️ Keyboard-accessible controls
+👁️ Focus-visible states
+💬 Accessible dialogs
+⏳ aria-busy
+⚠️ aria-invalid
+📢 aria-live
+🚨 role="alert"
+🖼️ Meaningful image alt text
+⚠️ Error Handling
+
+The application provides:
+
+⏳ Loading states
+📭 Empty states
+❌ Error states
+🔄 Retry actions
+🔔 Toast notifications
+🔐 Automatic 401 handling
+🧹 Normalized API errors
+🧪 Verification
+
+The project is verified using:
+
+npm run lint
+npm run typecheck
 npm run build
-```
+Tested Functionality
+✅ Authentication
+✅ Protected routes
+✅ Product listing
+✅ Search
+✅ Search race conditions
+✅ Category filtering
+✅ Sorting
+✅ Pagination
+✅ URL state
+✅ Add product
+✅ Edit product
+✅ Delete product
+✅ Local persistence
+✅ Responsive views
+✅ Error handling
+✅ Retry handling
+✅ Production build
+🚀 Getting Started
+1️⃣ Clone
+git clone https://github.com/sandeep-rathod-2004/nexgensis-react-assignment.git
+2️⃣ Enter the project
+cd nexgensis-react-assignment
+3️⃣ Install dependencies
+npm install
+4️⃣ Start development server
+npm run dev
 
-This produces a production-optimized build in the `.next` directory.
+Open:
 
-## Deployment
+http://localhost:3000
+📜 Available Scripts
+Command	Description
+npm run dev	🚀 Development server
+npm run build	📦 Production build
+npm run start	🌐 Production server
+npm run lint	🔍 ESLint
+npm run typecheck	🔷 TypeScript validation
+🌐 Deployment
+🚀 Vercel
 
-The project is Vercel-ready:
+Live Application
 
-1. Push the repository to GitHub
-2. Import the project in [Vercel](https://vercel.com)
-3. Vercel auto-detects Next.js — no additional configuration needed
-4. Deploy
+https://nexgensis-react-assignment-eight.vercel.app/
 
-No environment variables need to be configured on Vercel.
+💻 GitHub
 
-## URL State
+https://github.com/sandeep-rathod-2004/nexgensis-react-assignment
 
-All list state is persisted in the URL query parameters:
+Deployment Flow
+GitHub
+   ↓
+Vercel
+   ↓
+Next.js Build
+   ↓
+Production Deployment
 
-- `page` — Current page number
-- `pageSize` — Items per page (10, 20, or 50)
-- `search` — Search query text
-- `category` — Category slug filter
-- `sort` — Sort field and direction (e.g., `price-asc`)
+No environment variables are required for the current DummyJSON configuration.
 
-Example URL: `/products?page=2&pageSize=20&search=phone&category=smartphones&sort=price-asc`
+⚠️ Known Limitations
+DummyJSON Mutations
 
-Refreshing the page preserves the exact state. Sharing the URL reproduces the same view. Invalid values (`?page=abc`, `?pageSize=invalid`, `?sort=random`) are normalized to safe defaults. Pages beyond the total are automatically redirected to the last valid page.
+DummyJSON create/update/delete operations are simulated and are not permanently persisted on the server.
 
-## Search Race Condition
+The application therefore maintains local persistence through localStorage.
 
-Search uses two layers of protection against stale responses:
+Session Cache
 
-1. **Debouncing (400ms)** — The search input updates local state immediately, but the debounced value (which triggers the API call) only updates after the user stops typing for 400ms. This reduces the number of requests.
+The product catalog cache uses sessionStorage and is scoped to the current browser session/storage context.
 
-2. **Request ID tracking + AbortController** — Each fetch operation increments a `requestIdRef` counter. When a response arrives, it only updates state if its request ID matches the current latest ID. Additionally, an `AbortController` aborts any in-flight request before starting a new one, ensuring the network request itself is cancelled.
+Authentication
 
-This means if the user types "phone" then "iphone" quickly, even if the "phone" response arrives after "iphone", it is discarded — only the latest request's results are displayed.
+DummyJSON authentication tokens have a limited lifetime.
 
-## Search + Category Limitation
+The application handles 401 responses but does not implement token refresh.
 
-DummyJSON does not support combined server-side search and category filtering in a single API call. The `/products/search?q=` endpoint does not accept a category parameter.
+Image Upload
 
-**Chosen approach:** When a search query is active, the app fetches all matching results from the search endpoint (with a large limit), then applies category filtering and sorting client-side. Pagination is then computed from the filtered result set, ensuring "Showing X–Y of Z" always reflects the displayed data. When no search is active, the app uses the server-side category endpoint (`/products/category/{slug}`) with proper server-side pagination and sorting.
+Real image uploading is not implemented.
 
-## CRUD Persistence Limitation
+New products use placeholder image data because DummyJSON does not provide persistent image-upload functionality.
 
-DummyJSON's add, update, and delete endpoints are **simulated** — they return a successful response but do not actually persist changes on the server. A subsequent GET request returns the original unmodified data.
+🤖 AI Usage
 
-**Solution:** The app maintains a client-side mutation layer in `ProductContext` backed by `localStorage`:
+AI tools were used during development for:
 
-- **Added products** — Stored as full product objects with negative IDs to distinguish from server products
-- **Updated products** — Stored as partial overrides keyed by product ID, merged with server data on display
-- **Deleted products** — Stored as a set of IDs to exclude from server results
+💻 Code generation assistance
+🐛 Debugging
+♻️ Refactoring suggestions
+⚡ Performance optimization
+📝 Documentation assistance
 
-When fetching products, the app combines server data with local mutations: added products are prepended, updated products are merged, deleted products are filtered out. This ensures the user sees their changes immediately and after page refresh, within the same browser session.
+All AI-assisted code was reviewed, understood, tested, and adjusted as necessary.
 
-## Error Handling
+The final implementation was manually verified against the assignment requirements.
 
-All API errors are normalized through a central `normalizeApiError()` function that extracts human-readable messages from Axios errors and avoids exposing raw technical details. Error states display a clear message with a retry button. 401 errors automatically clear the session and redirect to login. Toast notifications provide feedback for successful and failed operations.
+📋 Assignment Requirements Covered
+Requirement	Status
+⚛️ Next.js	✅
+⚛️ React	✅
+🎨 Tailwind CSS	✅
+📡 Axios	✅
+🌐 DummyJSON API	✅
+🔐 Authentication	✅
+🛡️ Protected routes	✅
+📦 Product management	✅
+📱 Responsive design	✅
+🔎 Search	✅
+⏱️ Debouncing	✅
+🛑 Race-condition protection	✅
+🗂️ Category filtering	✅
+↕️ Sorting	✅
+📄 Pagination	✅
+🔗 URL state	✅
+👁️ Product details	✅
+➕ Add/Edit/Delete	✅
+🧪 Validation	✅
+⏳ Loading states	✅
+📭 Empty states	✅
+❌ Error states	✅
+🔄 Retry handling	✅
+💾 Local CRUD persistence	✅
+♿ Accessibility	✅
+🚀 Production deployment	✅
+📝 Documentation	✅
+👨‍💻 Developer
 
-## Accessibility
+Sandeep Rathod
 
-- Semantic HTML elements (`nav`, `header`, `main`, `table`, `form`)
-- ARIA labels on icon-only buttons and interactive controls
-- `aria-busy` on loading buttons, `aria-invalid` on form fields with errors
-- `aria-live` regions for pagination status
-- `role="alert"` on validation error messages
-- Keyboard-accessible modal dialogs (Radix UI Dialog handles focus trapping)
-- Meaningful alt text on product images
-- Color is never the sole indicator — stock status includes text labels alongside colored badges
-- Focus-visible styles on all interactive elements
+B.Tech — Computer Science & Engineering
 
-## AI Usage
+🔗 Project Links
 
-AI tools were used for assistance during development, including code generation, refactoring suggestions, and documentation. All generated code was reviewed, understood, and adjusted as needed to ensure correctness, maintainability, and alignment with the assignment requirements. The architectural decisions, state management strategy, and race condition solution were designed with full understanding of the underlying concepts.
+🌐 Live:
+https://nexgensis-react-assignment-eight.vercel.app/
 
-## Known Limitations
+💻 GitHub:
+https://github.com/sandeep-rathod-2004/nexgensis-react-assignment
 
-- **DummyJSON mutations are not persisted server-side** — Add/edit/delete changes are only visible in the current browser session via localStorage. Opening the app in a different browser or clearing storage resets to the original server data.
-- **Search results fetched in bulk** — To support client-side category filtering on search results, the app fetches up to 1000 search results at once. This is a trade-off for correctness over network efficiency.
-- **No real authentication persistence** — DummyJSON tokens have a limited lifetime. The app handles 401s gracefully but does not implement token refresh.
-- **No image upload** — New products use placeholder images since DummyJSON does not support file uploads.
+📄 License
+
+This project was created as a technical assignment and demonstration project.
