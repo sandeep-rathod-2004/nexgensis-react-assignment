@@ -382,15 +382,14 @@ export default function ProductsPage() {
       });
       setDeleteModalOpen(false);
       setDeleteTarget(null);
+      setProducts((currentProducts) => currentProducts.filter((product) => product.id !== deleteTarget.id));
+      setTotal((currentTotal) => Math.max(0, currentTotal - 1));
 
       // If the current page becomes empty after deletion, go to previous page
       const remainingCount = total - 1;
       const newTotalPages = Math.max(1, Math.ceil(remainingCount / pageSize));
       if (page > newTotalPages && page > 1) {
         updateUrl({ page: newTotalPages });
-      } else {
-        // Trigger refetch by updating state
-        fetchProducts();
       }
     } catch (err) {
       const normalized = normalizeApiError(err);
@@ -398,7 +397,7 @@ export default function ProductsPage() {
     } finally {
       setIsDeleting(false);
     }
-  }, [deleteTarget, isDeleting, deleteLocalProduct, total, pageSize, page, updateUrl, fetchProducts]);
+  }, [deleteTarget, isDeleting, deleteLocalProduct, total, pageSize, page, updateUrl]);
 
   const activeFilters = hasFilters(urlState);
   const showProducts = !isLoading && !error && products.length > 0;

@@ -60,7 +60,7 @@ function FormField({ label, required, error, htmlFor, children, hint }: FormFiel
 
 export default function ProductForm({ mode, initialProduct, categories }: ProductFormProps) {
   const router = useRouter();
-  const { addLocalProduct, updateLocalProduct } = useProductStore();
+  const { createLocalProduct, updateLocalProduct } = useProductStore();
 
   const [formData, setFormData] = useState<ProductFormData>({
     title: initialProduct?.title ?? '',
@@ -98,8 +98,7 @@ export default function ProductForm({ mode, initialProduct, categories }: Produc
       try {
         if (mode === 'create') {
           const created = await createProduct(formData);
-          const persistedProduct: Product = {
-            ...created,
+          createLocalProduct({
             title: created.title || formData.title,
             description: created.description || formData.description,
             category: created.category || formData.category,
@@ -107,10 +106,7 @@ export default function ProductForm({ mode, initialProduct, categories }: Produc
             stock: Number(created.stock ?? formData.stock),
             brand: created.brand || formData.brand || '',
             rating: Number(created.rating ?? formData.rating ?? 0),
-            isLocal: true,
-          };
-
-          addLocalProduct(persistedProduct);
+          });
           toast.success('Product created', {
             description: `"${formData.title}" has been added to the catalog.`,
           });
@@ -149,7 +145,7 @@ export default function ProductForm({ mode, initialProduct, categories }: Produc
       mode,
       initialProduct,
       router,
-      addLocalProduct,
+      createLocalProduct,
       updateLocalProduct,
     ]
   );
