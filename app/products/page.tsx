@@ -22,18 +22,19 @@ import { getCategories } from '@/lib/api/categories';
 import { normalizeApiError } from '@/lib/api/axios';
 import { useProductStore } from '@/context/ProductContext';
 
-import type { Product, ProductListResponse, Category } from '@/types';
-import { parseProductListUrlParams, buildProductListUrl, sortToParams, hasActiveFilters as hasFilters } from '@/lib/utils/url-state';
-import { calculatePagination, skipFromPage, DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@/lib/utils/pagination';
+import type { Product, Category } from '@/types';
+import { parseProductListUrlParams, buildProductListUrl, hasActiveFilters as hasFilters } from '@/lib/utils/url-state';
+import { calculatePagination, skipFromPage } from '@/lib/utils/pagination';
 import { parseSortValue } from '@/lib/utils/validation';
+import { getCachedProductCatalog, setCachedProductCatalog } from '@/lib/utils/product-cache';
 
-const DEBOUNCE_MS = 400;
+const DEBOUNCE_MS = 250;
 
 export default function ProductsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const { getLocalOverrides, deleteLocalProduct, isDeleted, getEffectiveProduct } = useProductStore();
+  const { getLocalOverrides, deleteLocalProduct } = useProductStore();
 
   // Parse URL state
   const urlState = useMemo(() => parseProductListUrlParams(searchParams), [searchParams]);
@@ -43,8 +44,9 @@ export default function ProductsPage() {
   const [debouncedSearch, setDebouncedSearch] = useState(urlState.search);
 
   // Data state
-  const [products, setProducts] = useState<Product[]>([]);
-  const [total, setTotal] = useState(0);
+  const [catalog, setCatalog] = useState<Product[]>([]);
+  const [searchCatalog, setSearchCatalog] = useState<Product[] | null>(null);
+  const [searchCatalogQuery, setSearchCatalogQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSearching, setIsSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -59,6 +61,8 @@ export default function ProductsPage() {
   // Request tracking for race condition protection
   const requestIdRef = useRef(0);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const searchRequestIdRef = useRef(0);
+  const searchAbortControllerRef = useRef<AbortController | null>(null);
 
   // Sync search input when URL changes (e.g., back/forward navigation, clear filters)
   useEffect(() => {
@@ -111,9 +115,10 @@ export default function ProductsPage() {
     };
   }, []);
 
-  // Main data fetching effect — depends on URL state
+  // Load the base catalog once; all URL changes are derived locally afterward.
   const { page, pageSize, search, category, sort } = urlState;
   const localOverrides = getLocalOverrides();
+  const { added, updated, deleted } = localOverrides;
 
   const applySort = useCallback((items: Product[], sortValue: string) => {
     const parsed = parseSortValue(sortValue);
@@ -130,7 +135,7 @@ export default function ProductsPage() {
     return sorted;
   }, []);
 
-  const fetchProducts = useCallback(async () => {
+  const fetchProducts = useCallback(async (forceRefresh = false) => {
     // Cancel any in-flight request
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
@@ -141,128 +146,18 @@ export default function ProductsPage() {
 
     setIsLoading(true);
     setError(null);
-    if (search) setIsSearching(true);
 
     try {
-      let response: ProductListResponse;
-
-      if (search) {
-        response = await searchProducts(
-          search,
-          { limit: 1000, skip: 0 },
-          controller.signal
-        );
-
-        let filtered = response.products;
-        if (category) {
-          filtered = filtered.filter((p) => p.category === category);
-        }
-
-        const { added, updated, deleted } = localOverrides;
-        const filteredDeleted = filtered.filter((p) => !deleted.includes(p.id));
-        const filteredAdded = search
-          ? added.filter(
-              (p) =>
-                p.title.toLowerCase().includes(search.toLowerCase()) ||
-                p.description.toLowerCase().includes(search.toLowerCase()) ||
-                (p.brand && p.brand.toLowerCase().includes(search.toLowerCase()))
-            )
-          : added;
-        const addedFilteredByCategory = category
-          ? filteredAdded.filter((p) => p.category === category)
-          : filteredAdded;
-
-        const allProducts = [...addedFilteredByCategory, ...filteredDeleted];
-        const effectiveProducts = allProducts.map((p) => {
-          const updates = updated[p.id];
-          return updates ? { ...p, ...updates } : p;
-        });
-
-        const sortedProducts = applySort(effectiveProducts, sort);
-        const totalCount = sortedProducts.length;
-        const skipVal = skipFromPage(page, pageSize);
-        const paged = sortedProducts.slice(skipVal, skipVal + pageSize);
-
-        if (currentRequestId === requestIdRef.current) {
-          setProducts(paged);
-          setTotal(totalCount);
-        }
-        return;
-      }
-
-      const sortParams = sortToParams(sort);
-      const skipVal = skipFromPage(page, pageSize);
-
-      if (category) {
-        const { default: api } = await import('@/lib/api/axios');
-        const { data } = await api.get<ProductListResponse>(
-          `/products/category/${category}`,
-          {
-            params: {
-              limit: 1000,
-              skip: 0,
-              ...(sortParams.sortBy ? { sortBy: sortParams.sortBy } : {}),
-              ...(sortParams.order ? { order: sortParams.order } : {}),
-            },
-            signal: controller.signal,
-          }
-        );
-
-        const { added, updated, deleted } = localOverrides;
-        const serverFiltered = data.products.filter((p) => !deleted.includes(p.id));
-        const addedInCategory = added.filter(
-          (p) => p.category === category && !deleted.includes(p.id)
-        );
-        const allProducts = [...addedInCategory, ...serverFiltered];
-        const effectiveProducts = allProducts.map((p) => {
-          const updates = updated[p.id];
-          return updates ? { ...p, ...updates } : p;
-        });
-
-        const sortedProducts = applySort(effectiveProducts, sort);
-        const totalCount = sortedProducts.length;
-        const paged = sortedProducts.slice(skipVal, skipVal + pageSize);
-
-        if (currentRequestId === requestIdRef.current) {
-          setProducts(paged);
-          setTotal(totalCount);
-        }
-        return;
-      }
-
-      const requestLimit = sort ? 1000 : pageSize;
-      const requestSkip = sort ? 0 : skipVal;
-      response = await getProducts(
-        { limit: requestLimit, skip: requestSkip, ...sortParams },
-        controller.signal
-      );
-
-      const { added, updated, deleted } = localOverrides;
-      const serverFiltered = response.products.filter((p) => !deleted.includes(p.id));
-      const addedNotDeleted = added.filter((p) => !deleted.includes(p.id));
-      const allProducts = [...addedNotDeleted, ...serverFiltered];
-      const effectiveProducts = allProducts.map((p) => {
-        const updates = updated[p.id];
-        return updates ? { ...p, ...updates } : p;
-      });
-
-      if (sort) {
-        const sortedProducts = applySort(effectiveProducts, sort);
-        const totalCount = sortedProducts.length;
-        const paged = sortedProducts.slice(skipVal, skipVal + pageSize);
-
-        if (currentRequestId === requestIdRef.current) {
-          setProducts(paged);
-          setTotal(totalCount);
-        }
-        return;
-      }
-
-      const totalCount = response.total + addedNotDeleted.length;
-
       if (currentRequestId === requestIdRef.current) {
-        setProducts(effectiveProducts.slice(skipVal, skipVal + pageSize));
-        setTotal(totalCount);
+        const cached = forceRefresh ? null : getCachedProductCatalog();
+        if (cached) {
+          setCatalog(cached);
+          return;
+        }
+
+        const response = await getProducts({ limit: 1000, skip: 0 }, controller.signal);
+        setCachedProductCatalog(response.products);
+        setCatalog(response.products);
       }
     } catch (err) {
       // Don't update state if request was cancelled or is stale
@@ -275,17 +170,14 @@ export default function ProductsPage() {
          (err as { code?: string }).code === 'ERR_CANCELED');
       if (!isAbort) {
         setError(normalized.message);
-        setProducts([]);
-        setTotal(0);
+        setCatalog([]);
       }
     } finally {
       if (currentRequestId === requestIdRef.current) {
         setIsLoading(false);
-        setIsSearching(false);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, pageSize, search, category, sort, localOverrides.added, localOverrides.updated, localOverrides.deleted]);
+  }, []);
 
   useEffect(() => {
     fetchProducts();
@@ -295,6 +187,91 @@ export default function ProductsPage() {
       }
     };
   }, [fetchProducts]);
+
+  useEffect(() => {
+    if (searchAbortControllerRef.current) {
+      searchAbortControllerRef.current.abort();
+    }
+
+    const query = search.trim();
+    const currentRequestId = ++searchRequestIdRef.current;
+
+    if (!query) {
+      setSearchCatalog(null);
+      setSearchCatalogQuery('');
+      setIsSearching(false);
+      return;
+    }
+
+    const controller = new AbortController();
+    searchAbortControllerRef.current = controller;
+    setIsSearching(true);
+
+    searchProducts(query, { limit: 1000, skip: 0 }, controller.signal)
+      .then((response) => {
+        if (currentRequestId !== searchRequestIdRef.current) return;
+        setSearchCatalog(response.products);
+        setSearchCatalogQuery(query);
+      })
+      .catch((err) => {
+        if (currentRequestId !== searchRequestIdRef.current) return;
+        const isAbort =
+          err instanceof Error &&
+          (err.name === 'CanceledError' || err.name === 'AbortError' ||
+            (err as { code?: string }).code === 'ERR_CANCELED');
+        if (!isAbort) {
+          setSearchCatalog(null);
+          setSearchCatalogQuery('');
+        }
+      })
+      .finally(() => {
+        if (currentRequestId === searchRequestIdRef.current) {
+          setIsSearching(false);
+        }
+      });
+
+    return () => controller.abort();
+  }, [search]);
+
+  const visibleProducts = useMemo(() => {
+    const normalizedSearch = search.toLowerCase().trim();
+    const searchTerms = normalizedSearch
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((term) => term.endsWith('s') ? term.slice(0, -1) : term);
+    const matchesSearch = (product: Product) => {
+      if (!searchTerms.length) return true;
+      const searchable = [
+        product.title,
+        product.description,
+        product.brand ?? '',
+        product.category,
+        ...(product.tags ?? []),
+      ].join(' ').toLowerCase();
+      return searchTerms.every((term) => searchable.includes(term));
+    };
+    const localProducts = added.filter((product) => !deleted.includes(product.id));
+    const sourceCatalog = search && searchCatalogQuery === search ? searchCatalog ?? catalog : catalog;
+    const cachedSearchMatches = search ? catalog.filter(matchesSearch) : [];
+    const serverProducts = [...sourceCatalog, ...cachedSearchMatches]
+      .filter((product, index, products) => products.findIndex((item) => item.id === product.id) === index)
+      .filter((product) => !deleted.includes(product.id));
+    const merged = [...localProducts, ...serverProducts].map((product) => {
+      const updates = updated[product.id];
+      return updates ? { ...product, ...updates, isLocal: product.isLocal } : product;
+    });
+    const filtered = merged.filter((product) => {
+      if (category && product.category !== category) return false;
+      if (!searchTerms.length) return true;
+      return matchesSearch(product);
+    });
+    const sorted = applySort(filtered, sort);
+    const skip = skipFromPage(page, pageSize);
+    return { products: sorted.slice(skip, skip + pageSize), total: sorted.length };
+  }, [added, applySort, catalog, category, deleted, page, pageSize, search, searchCatalog, searchCatalogQuery, sort, updated]);
+
+  const products = isLoading ? [] : visibleProducts.products;
+  const total = isLoading ? 0 : visibleProducts.total;
 
   // Compute pagination info
   const pagination = calculatePagination(page, pageSize, total);
@@ -360,7 +337,7 @@ export default function ProductsPage() {
   }, [router]);
 
   const handleRetry = useCallback(() => {
-    fetchProducts();
+    fetchProducts(true);
   }, [fetchProducts]);
 
   // Delete handling
@@ -382,8 +359,6 @@ export default function ProductsPage() {
       });
       setDeleteModalOpen(false);
       setDeleteTarget(null);
-      setProducts((currentProducts) => currentProducts.filter((product) => product.id !== deleteTarget.id));
-      setTotal((currentTotal) => Math.max(0, currentTotal - 1));
 
       // If the current page becomes empty after deletion, go to previous page
       const remainingCount = total - 1;
