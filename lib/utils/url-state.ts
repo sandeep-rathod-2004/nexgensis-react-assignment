@@ -18,12 +18,14 @@ export function parseProductListUrlParams(
   searchParams: URLSearchParams
 ): ProductListUrlState {
   const rawPage = searchParams.get('page');
-  let page = parseInt(rawPage ?? '', 10);
-  if (isNaN(page) || page < 1) page = DEFAULT_PAGE;
+  const parsedPage = Number.parseInt(rawPage ?? '', 10);
+  let page = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : DEFAULT_PAGE;
 
   const rawPageSize = searchParams.get('pageSize');
-  let pageSize = parseInt(rawPageSize ?? '', 10);
-  if (!PAGE_SIZE_OPTIONS.includes(pageSize)) pageSize = DEFAULT_PAGE_SIZE;
+  const parsedPageSize = Number.parseInt(rawPageSize ?? '', 10);
+  let pageSize = Number.isFinite(parsedPageSize) && PAGE_SIZE_OPTIONS.includes(parsedPageSize)
+    ? parsedPageSize
+    : DEFAULT_PAGE_SIZE;
 
   const search = (searchParams.get('search') ?? '').trim();
 
@@ -41,9 +43,10 @@ export function buildProductListUrl(
 ): string {
   const params = new URLSearchParams();
 
-  const page = state.page ?? (existing ? parseInt(existing.get('page') ?? '1', 10) || 1 : 1);
-  const pageSize =
-    state.pageSize ?? (existing ? parseInt(existing.get('pageSize') ?? '20', 10) || 20 : 20);
+  const rawPage = state.page ?? (existing ? Number.parseInt(existing.get('page') ?? '1', 10) || 1 : 1);
+  const page = Number.isFinite(rawPage) && rawPage > 0 ? rawPage : 1;
+  const rawPageSize = state.pageSize ?? (existing ? Number.parseInt(existing.get('pageSize') ?? '20', 10) || 20 : 20);
+  const pageSize = Number.isFinite(rawPageSize) && rawPageSize > 0 ? rawPageSize : 20;
   const search = state.search ?? (existing?.get('search') ?? '');
   const category = state.category ?? (existing?.get('category') ?? '');
   const sort = state.sort ?? (existing?.get('sort') ?? '');

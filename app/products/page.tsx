@@ -212,7 +212,9 @@ export default function ProductsPage() {
       const skipVal = skipFromPage(page, pageSize);
 
       if (category) {
-        // Fetch products by category with sorting and pagination
+        // Fetch products by category with sorting and pagination.
+        // The API response is already limited and skipped for the current page,
+        // so we must not slice the returned page again.
         const params: Record<string, string | number> = {
           limit: pageSize,
           skip: skipVal,
@@ -255,19 +257,19 @@ export default function ProductsPage() {
           }
         }
 
-        // For category endpoint, total includes added products
+        // For category endpoint, total includes added products.
+        // The API already returned the correct page for this request.
         const totalCount = data.total + addedInCategory.length;
-        const skipForPage = skipFromPage(page, pageSize);
-        const paged = effectiveProducts.slice(skipForPage, skipForPage + pageSize);
 
         if (currentRequestId === requestIdRef.current) {
-          setProducts(paged);
+          setProducts(effectiveProducts);
           setTotal(totalCount);
         }
         return;
       }
 
-      // No category, no search: standard paginated fetch with sorting
+      // No category, no search: standard paginated fetch with sorting.
+      // The API already returned the requested page via limit/skip.
       response = await getProducts(
         { limit: pageSize, skip: skipVal, ...sortParams },
         controller.signal
@@ -298,11 +300,9 @@ export default function ProductsPage() {
       }
 
       const totalCount = response.total + addedNotDeleted.length;
-      const skipForPage = skipFromPage(page, pageSize);
-      const paged = effectiveProducts.slice(skipForPage, skipForPage + pageSize);
 
       if (currentRequestId === requestIdRef.current) {
-        setProducts(paged);
+        setProducts(effectiveProducts);
         setTotal(totalCount);
       }
     } catch (err) {
